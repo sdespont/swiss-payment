@@ -11,6 +11,7 @@ use Z38\SwissPayment\BIC;
 use Z38\SwissPayment\FinancialInstitutionInterface;
 use Z38\SwissPayment\IBAN;
 use Z38\SwissPayment\IID;
+use Z38\SwissPayment\Message\CustomerCreditTransfer;
 use Z38\SwissPayment\Money;
 use Z38\SwissPayment\Text;
 use Z38\SwissPayment\TransactionInformation\CreditTransfer;
@@ -216,7 +217,7 @@ class PaymentInformation
      *
      * @return DOMElement The built DOM tree
      */
-    public function asDom(DOMDocument $doc)
+    public function asDom(DOMDocument $doc, string $spsVersion)
     {
         $root = $doc->createElement('PmtInf');
 
@@ -249,7 +250,14 @@ class PaymentInformation
             $root->appendChild($paymentType);
         }
 
-        $root->appendChild($doc->createElement('ReqdExctnDt', $this->executionDate->format('Y-m-d')));
+        // Conditional formatting for SPS-2021
+        $requestedExecutionDate = $doc->createElement('ReqdExctnDt', $this->executionDate->format('Y-m-d'));
+        if ($spsVersion === CustomerCreditTransfer::SPS_2021) {
+            $executionDate = $requestedExecutionDate;
+        } else {
+            $executionDate = $doc->createElement('Dt')->appendChild($requestedExecutionDate);
+        }
+        $root->appendChild($executionDate);
 
         $debtor = $doc->createElement('Dbtr');
         $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));

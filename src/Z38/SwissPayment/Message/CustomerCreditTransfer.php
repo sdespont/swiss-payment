@@ -14,6 +14,10 @@ use Z38\SwissPayment\Text;
  */
 class CustomerCreditTransfer extends AbstractMessage
 {
+    // SPS-2021 version is supported until November 2024
+    public const SPS_2021 = 'SPS-2021';
+    public const SPS_2022 = 'SPS-2022';
+
     /**
      * @var string
      */
@@ -35,6 +39,11 @@ class CustomerCreditTransfer extends AbstractMessage
     protected $creationTime;
 
     /**
+     * @var string
+     */
+    protected $spsVersion;
+
+    /**
      * Constructor
      *
      * @param string $id              Identifier of the message (should usually be unique over a period of at least 90 days)
@@ -42,12 +51,13 @@ class CustomerCreditTransfer extends AbstractMessage
      *
      * @throws InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $initiatingParty)
+    public function __construct($id, $initiatingParty, $spsVersion = self::SPS_2021)
     {
         $this->id = Text::assertIdentifier($id);
         $this->initiatingParty = Text::assert($initiatingParty, 70);
         $this->payments = [];
         $this->creationTime = new DateTime();
+        $this->spsVersion = $spsVersion;
     }
 
     /**
@@ -93,7 +103,11 @@ class CustomerCreditTransfer extends AbstractMessage
      */
     protected function getSchemaName()
     {
-        return 'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd';
+        if ($this->spsVersion === self::SPS_2021) {
+            return 'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd';
+        } else {
+            return 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
+        }
     }
 
     /**
@@ -101,7 +115,11 @@ class CustomerCreditTransfer extends AbstractMessage
      */
     protected function getSchemaLocation()
     {
-        return 'pain.001.001.03.ch.02.xsd';
+        if ($this->spsVersion === self::SPS_2021) {
+            return 'pain.001.001.03.ch.02.xsd';
+        } else {
+            return 'pain.001.001.03.ch.03.xsd';
+        }
     }
 
     /**
@@ -129,7 +147,7 @@ class CustomerCreditTransfer extends AbstractMessage
         $root->appendChild($header);
 
         foreach ($this->payments as $payment) {
-            $root->appendChild($payment->asDom($doc));
+            $root->appendChild($payment->asDom($doc, $this->spsVersion));
         }
 
         return $root;
