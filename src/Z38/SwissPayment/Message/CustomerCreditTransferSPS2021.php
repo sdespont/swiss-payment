@@ -19,9 +19,9 @@ class CustomerCreditTransferSPS2021 extends AbstractCustomerCreditTransfer
      *
      * @throws InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $initiatingParty)
+    public function __construct($id, $initiatingParty, $softwareName, $softwareVersion)
     {
-        parent::__construct($id, $initiatingParty, AbstractCustomerCreditTransfer::SPS_2021);
+        parent::__construct($id, $initiatingParty, $softwareName, $softwareVersion, AbstractCustomerCreditTransfer::SPS_2021);
     }
 
     /**
@@ -38,26 +38,6 @@ class CustomerCreditTransferSPS2021 extends AbstractCustomerCreditTransfer
     public function getSchemaLocation()
     {
         return 'pain.001.001.03.ch.02.xsd';
-    }
-
-    /**
-     * Returns the name of the software used to create the message
-     *
-     * @return string
-     */
-    public function getSoftwareName()
-    {
-        return 'Z38_SwissPayment';
-    }
-
-    /**
-     * Returns the version of the software used to create the message
-     *
-     * @return string
-     */
-    public function getSoftwareVersion()
-    {
-        return '0.7.0';
     }
 
     /**

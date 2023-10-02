@@ -5,13 +5,17 @@ namespace Z38\SwissPayment\Message;
 use DOMElement;
 use DOMDocument;
 use InvalidArgumentException;
-use Z38\SwissPayment\Text;
 
 /**
  * CustomerCreditTransfer represents a Customer Credit Transfer Initiation (pain.001) message
  */
 class CustomerCreditTransferSPS2022 extends AbstractCustomerCreditTransfer
 {
+    /**
+     * @var string
+     */
+    private $manufacturerName;
+
     /**
      * Constructor
      *
@@ -20,9 +24,10 @@ class CustomerCreditTransferSPS2022 extends AbstractCustomerCreditTransfer
      *
      * @throws InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $initiatingParty)
+    public function __construct($id, $initiatingParty, $softwareName, $softwareVersion, $manufacturerName = null)
     {
-        parent::__construct($id, $initiatingParty, AbstractCustomerCreditTransfer::SPS_2022);
+        $this->manufacturerName = $manufacturerName;
+        parent::__construct($id, $initiatingParty, $softwareName, $softwareVersion, AbstractCustomerCreditTransfer::SPS_2022);
     }
 
     /**
@@ -42,26 +47,6 @@ class CustomerCreditTransferSPS2022 extends AbstractCustomerCreditTransfer
     }
 
     /**
-     * Returns the name of the software used to create the message
-     *
-     * @return string
-     */
-    public function getSoftwareName()
-    {
-        return 'Z38_SwissPayment';
-    }
-
-    /**
-     * Returns the version of the software used to create the message
-     *
-     * @return string
-     */
-    public function getSoftwareVersion()
-    {
-        return '0.7.0';
-    }
-
-    /**
      * Creates a DOM element which contains details about the software used to create the message
      *
      * @param DOMDocument $doc
@@ -77,10 +62,12 @@ class CustomerCreditTransferSPS2022 extends AbstractCustomerCreditTransfer
         $otherProductName->appendChild($doc->createElement('Id', $this->getSoftwareName()));
         $root->appendChild($otherProductName);
 
-        $otherManufacturerName = $doc->createElement('Othr');
-        $otherManufacturerName->appendChild($doc->createElement('ChanlTp', 'PRVD'));
-        $otherManufacturerName->appendChild($doc->createElement('Id', $this->getSoftwareName()));
-        $root->appendChild($otherManufacturerName);
+        if (isset($this->manufacturerName)) {
+            $otherManufacturerName = $doc->createElement('Othr');
+            $otherManufacturerName->appendChild($doc->createElement('ChanlTp', 'PRVD'));
+            $otherManufacturerName->appendChild($doc->createElement('Id', $this->manufacturerName));
+            $root->appendChild($otherManufacturerName);
+        }
 
         $otherSoftwareVersion = $doc->createElement('Othr');
         $otherSoftwareVersion->appendChild($doc->createElement('ChanlTp', 'VRSN'));

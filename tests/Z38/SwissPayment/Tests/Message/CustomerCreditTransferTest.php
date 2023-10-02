@@ -11,6 +11,7 @@ use Z38\SwissPayment\GeneralAccount;
 use Z38\SwissPayment\IBAN;
 use Z38\SwissPayment\IID;
 use Z38\SwissPayment\ISRParticipant;
+use Z38\SwissPayment\Message\AbstractCustomerCreditTransfer;
 use Z38\SwissPayment\Message\CustomerCreditTransferSPS2021;
 use Z38\SwissPayment\Message\CustomerCreditTransferSPS2022;
 use Z38\SwissPayment\Money;
@@ -38,7 +39,7 @@ class CustomerCreditTransferTest extends TestCase
 {
     protected function buildMessage2021()
     {
-        $message = new CustomerCreditTransferSPS2021('message-000', 'InnoMuster AG');
+        $message = new CustomerCreditTransferSPS2021('message-000', 'InnoMuster AG', 'softwareName', 'version');
 
         // Test payment-100 : IS1CreditTransfer (local instrument CH01) and IS2CreditTransfer (local instrument CH02)
         $payment = new PaymentInformation(
@@ -132,7 +133,7 @@ class CustomerCreditTransferTest extends TestCase
      */
     protected function buildMessage()
     {
-        $message = new CustomerCreditTransferSPS2022('message-000', 'InnoMuster AG');
+        $message = new CustomerCreditTransferSPS2022('message-000', 'InnoMuster AG', 'softwareName', 'version', 'manufacturerName');
 
         // Test payment-000 : BankCreditTransfer
         $payment = new PaymentInformation(
@@ -304,6 +305,31 @@ class CustomerCreditTransferTest extends TestCase
         return $message;
     }
 
+    public function schemaValidation(AbstractCustomerCreditTransfer $message)
+    {
+        $xml = $message->asXml();
+        $schemaPath = __DIR__.'/../../../../'.$message->getSchemaLocation();
+
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
+
+        libxml_use_internal_errors(true);
+        try {
+            $valid = $doc->schemaValidate($schemaPath);
+        } catch (Exception $e) {
+            $valid = false;
+        }
+        if ($valid === false) {
+            var_dump(libxml_get_errors());
+            foreach (libxml_get_errors() as $error) {
+                $this->fail($error->message);
+            }
+        }
+        self::assertTrue($valid);
+        libxml_clear_errors();
+        libxml_use_internal_errors(false);
+    }
+
     public function testGroupHeader()
     {
         $message = $this->buildMessage();
@@ -323,27 +349,8 @@ class CustomerCreditTransferTest extends TestCase
 
     public function testSchemaValidation()
     {
-        $message = $this->buildMessage2021();
-        $xml = $message->asXml();
-        $schemaPath = __DIR__.'/../../../../'.$message->getSchemaLocation();
-
-        $doc = new DOMDocument();
-        $doc->loadXML($xml);
-
-        libxml_use_internal_errors(true);
-        try {
-            $valid = $doc->schemaValidate($schemaPath);
-        } catch (Exception $e) {
-            $valid = false;
-        }
-        if ($valid === false) {
-            foreach (libxml_get_errors() as $error) {
-                $this->fail($error->message);
-            }
-        }
-        self::assertTrue($valid);
-        libxml_clear_errors();
-        libxml_use_internal_errors(false);
+        $this->schemaValidation($this->buildMessage2021());
+        $this->schemaValidation($this->buildMessage());
     }
 
     public function testGetPaymentCount()

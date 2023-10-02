@@ -244,7 +244,7 @@ class PaymentInformation
             }
             if ($this->categoryPurpose !== null) {
                 $categoryPurposeNode = $doc->createElement('CtgyPurp');
-                $categoryPurposeNode->appendChild($this->categoryPurpose->asDom($doc));
+                $categoryPurposeNode->appendChild($this->categoryPurpose->asDom($doc, $spsVersion));
                 $paymentType->appendChild($categoryPurposeNode);
             }
             $root->appendChild($paymentType);
@@ -270,7 +270,7 @@ class PaymentInformation
         $root->appendChild($debtorAccount);
 
         $debtorAgent = $doc->createElement('DbtrAgt');
-        $debtorAgent->appendChild($this->debtorAgent->asDom($doc));
+        $debtorAgent->appendChild($this->debtorAgent->asDom($doc, $spsVersion));
         $root->appendChild($debtorAgent);
 
         foreach ($this->transactions as $transaction) {
@@ -282,7 +282,7 @@ class PaymentInformation
                     throw new LogicException('You can not set the service level on B- and C-level.');
                 }
             }
-            $root->appendChild($transaction->asDom($doc, $this));
+            $root->appendChild($transaction->asDom($doc, $this, $spsVersion));
         }
 
         return $root;

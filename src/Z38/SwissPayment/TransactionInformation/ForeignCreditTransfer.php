@@ -62,24 +62,24 @@ class ForeignCreditTransfer extends CreditTransfer
     /**
      * {@inheritdoc}
      */
-    public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation)
+    public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation, $spsVersion)
     {
         $root = $this->buildHeader($doc, $paymentInformation);
 
         if ($this->intermediaryAgent !== null) {
             $intermediaryAgent = $doc->createElement('IntrmyAgt1');
-            $intermediaryAgent->appendChild($this->intermediaryAgent->asDom($doc));
+            $intermediaryAgent->appendChild($this->intermediaryAgent->asDom($doc, $spsVersion));
             $root->appendChild($intermediaryAgent);
         }
 
         $creditorAgent = $doc->createElement('CdtrAgt');
-        $creditorAgent->appendChild($this->creditorAgent->asDom($doc));
+        $creditorAgent->appendChild($this->creditorAgent->asDom($doc, $spsVersion));
         $root->appendChild($creditorAgent);
 
         $root->appendChild($this->buildCreditor($doc));
 
         $creditorAccount = $doc->createElement('CdtrAcct');
-        $creditorAccount->appendChild($this->creditorAccount->asDom($doc));
+        $creditorAccount->appendChild($this->creditorAccount->asDom($doc, $spsVersion));
         $root->appendChild($creditorAccount);
 
         $this->appendPurpose($doc, $root);

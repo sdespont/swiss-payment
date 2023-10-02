@@ -44,6 +44,16 @@ abstract class AbstractCustomerCreditTransfer extends AbstractMessage
     protected $spsVersion;
 
     /**
+     * @var string
+     */
+    protected $softwareName;
+
+    /**
+     * @var string
+     */
+    protected $softwareVersion;
+
+    /**
      * Constructor
      *
      * @param string $id              Identifier of the message (should usually be unique over a period of at least 90 days)
@@ -51,13 +61,15 @@ abstract class AbstractCustomerCreditTransfer extends AbstractMessage
      *
      * @throws InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $initiatingParty, $spsVersion)
+    public function __construct($id, $initiatingParty, $softwareName, $softwareVersion, $spsVersion)
     {
         $this->id = Text::assertIdentifier($id);
         $this->initiatingParty = Text::assert($initiatingParty, 70);
         $this->payments = [];
         $this->creationTime = new DateTime();
         $this->spsVersion = $spsVersion;
+        $this->softwareName = $softwareName;
+        $this->softwareVersion = $softwareVersion;
     }
 
     /**
@@ -97,6 +109,30 @@ abstract class AbstractCustomerCreditTransfer extends AbstractMessage
     {
         return count($this->payments);
     }
+
+    /**
+     * Returns the name of the software used to create the message
+     *
+     * @return string
+     */
+    public function getSoftwareName()
+    {
+        return $this->softwareName;
+    }
+
+    /**
+     * Returns the version of the software used to create the message
+     *
+     * @return string
+     */
+    public function getSoftwareVersion()
+    {
+        return $this->softwareVersion;
+    }
+
+    abstract public function getSchemaName();
+
+    abstract public function getSchemaLocation();
 
     /**
      * {@inheritdoc}

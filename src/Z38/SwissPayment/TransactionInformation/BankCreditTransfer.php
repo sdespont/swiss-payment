@@ -56,18 +56,18 @@ class BankCreditTransfer extends CreditTransfer
     /**
      * {@inheritdoc}
      */
-    public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation)
+    public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation, string $spsVersion)
     {
         $root = $this->buildHeader($doc, $paymentInformation);
 
         $creditorAgent = $doc->createElement('CdtrAgt');
-        $creditorAgent->appendChild($this->creditorAgent->asDom($doc));
+        $creditorAgent->appendChild($this->creditorAgent->asDom($doc, $spsVersion));
         $root->appendChild($creditorAgent);
 
         $root->appendChild($this->buildCreditor($doc));
 
         $creditorAccount = $doc->createElement('CdtrAcct');
-        $creditorAccount->appendChild($this->creditorIBAN->asDom($doc));
+        $creditorAccount->appendChild($this->creditorIBAN->asDom($doc, $spsVersion));
         $root->appendChild($creditorAccount);
 
         $this->appendPurpose($doc, $root);

@@ -17,5 +17,5 @@ interface FinancialInstitutionInterface
      *
      * @return DOMElement The built DOM element
      */
-    public function asDom(DOMDocument $doc);
+    public function asDom(DOMDocument $doc, string $spsVersion);
 }

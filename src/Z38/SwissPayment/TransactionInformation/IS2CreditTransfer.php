@@ -59,7 +59,7 @@ class IS2CreditTransfer extends CreditTransfer
     /**
      * {@inheritdoc}
      */
-    public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation)
+    public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation, string $spsVersion)
     {
         $root = $this->buildHeader($doc, $paymentInformation);
 
@@ -75,7 +75,7 @@ class IS2CreditTransfer extends CreditTransfer
         $root->appendChild($this->buildCreditor($doc));
 
         $creditorAccount = $doc->createElement('CdtrAcct');
-        $creditorAccount->appendChild($this->creditorIBAN->asDom($doc));
+        $creditorAccount->appendChild($this->creditorIBAN->asDom($doc, $spsVersion));
         $root->appendChild($creditorAccount);
 
         $this->appendPurpose($doc, $root);
