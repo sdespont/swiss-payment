@@ -20,7 +20,7 @@ require_once __DIR__.'/vendor/autoload.php';
 
 use Z38\SwissPayment\BIC;
 use Z38\SwissPayment\IBAN;
-use Z38\SwissPayment\Message\CustomerCreditTransfer;
+use Z38\SwissPayment\Message\AbstractCustomerCreditTransfer;
 use Z38\SwissPayment\Money;
 use Z38\SwissPayment\PaymentInformation\PaymentInformation;
 use Z38\SwissPayment\PostalAccount;
@@ -57,7 +57,7 @@ $payment = new PaymentInformation(
 $payment->addTransaction($transaction1);
 $payment->addTransaction($transaction2);
 
-$message = new CustomerCreditTransfer('message-001', 'InnoMuster AG');
+$message = new AbstractCustomerCreditTransfer('message-001', 'InnoMuster AG');
 $message->addPayment($payment);
 
 echo $message->asXml();

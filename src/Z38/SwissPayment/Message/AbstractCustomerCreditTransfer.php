@@ -12,7 +12,7 @@ use Z38\SwissPayment\Text;
 /**
  * CustomerCreditTransfer represents a Customer Credit Transfer Initiation (pain.001) message
  */
-class CustomerCreditTransfer extends AbstractMessage
+abstract class AbstractCustomerCreditTransfer extends AbstractMessage
 {
     // SPS-2021 version is supported until November 2024
     public const SPS_2021 = 'SPS-2021';
@@ -51,7 +51,7 @@ class CustomerCreditTransfer extends AbstractMessage
      *
      * @throws InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $initiatingParty, $spsVersion = self::SPS_2021)
+    public function __construct($id, $initiatingParty, $spsVersion)
     {
         $this->id = Text::assertIdentifier($id);
         $this->initiatingParty = Text::assert($initiatingParty, 70);
@@ -65,7 +65,7 @@ class CustomerCreditTransfer extends AbstractMessage
      *
      * @param DateTime $creationTime The desired creation time
      *
-     * @return CustomerCreditTransfer This message
+     * @return AbstractCustomerCreditTransfer This message
      */
     public function setCreationTime(DateTime $creationTime)
     {
@@ -79,7 +79,7 @@ class CustomerCreditTransfer extends AbstractMessage
      *
      * @param PaymentInformation $payment The payment to be added
      *
-     * @return CustomerCreditTransfer This message
+     * @return AbstractCustomerCreditTransfer This message
      */
     public function addPayment(PaymentInformation $payment)
     {
@@ -96,30 +96,6 @@ class CustomerCreditTransfer extends AbstractMessage
     public function getPaymentCount()
     {
         return count($this->payments);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getSchemaName()
-    {
-        if ($this->spsVersion === self::SPS_2021) {
-            return 'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd';
-        } else {
-            return 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getSchemaLocation()
-    {
-        if ($this->spsVersion === self::SPS_2021) {
-            return 'pain.001.001.03.ch.02.xsd';
-        } else {
-            return 'pain.001.001.03.ch.03.xsd';
-        }
     }
 
     /**

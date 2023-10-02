@@ -64,41 +64,4 @@ abstract class AbstractMessage implements MessageInterface
     {
         return $this->asDom()->saveXML();
     }
-
-    /**
-     * Returns the name of the software used to create the message
-     *
-     * @return string
-     */
-    public function getSoftwareName()
-    {
-        return 'Z38_SwissPayment';
-    }
-
-    /**
-     * Returns the version of the software used to create the message
-     *
-     * @return string
-     */
-    public function getSoftwareVersion()
-    {
-        return '0.7.0';
-    }
-
-    /**
-     * Creates a DOM element which contains details about the software used to create the message
-     *
-     * @param DOMDocument $doc
-     *
-     * @return DOMElement
-     */
-    protected function buildContactDetails(DOMDocument $doc)
-    {
-        $root = $doc->createElement('CtctDtls');
-
-        $root->appendChild(Text::xml($doc, 'Nm', $this->getSoftwareName()));
-        $root->appendChild(Text::xml($doc, 'Othr', $this->getSoftwareVersion()));
-
-        return $root;
-    }
 }
