@@ -67,7 +67,7 @@ class BankCreditTransfer extends CreditTransfer
         $root->appendChild($this->buildCreditor($doc));
 
         $creditorAccount = $doc->createElement('CdtrAcct');
-        $creditorAccount->appendChild($this->creditorIBAN->asDom($doc, $spsVersion));
+        $creditorAccount->appendChild($this->creditorIBAN->asDom($doc));
         $root->appendChild($creditorAccount);
 
         $this->appendPurpose($doc, $root);

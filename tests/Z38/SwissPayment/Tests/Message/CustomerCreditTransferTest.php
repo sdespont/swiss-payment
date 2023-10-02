@@ -37,7 +37,10 @@ use Z38\SwissPayment\UnstructuredPostalAddress;
  */
 class CustomerCreditTransferTest extends TestCase
 {
-    protected function buildMessage2021()
+    /**
+     * @return CustomerCreditTransferSPS2021
+     */
+    protected function buildMessageSPS2021()
     {
         $message = new CustomerCreditTransferSPS2021('message-000', 'InnoMuster AG', 'softwareName', 'version');
 
@@ -125,16 +128,28 @@ class CustomerCreditTransferTest extends TestCase
         $transaction->setRemittanceInformation("Test Remittance");
         $payment->addTransaction($transaction);
 
+        $this->buildCommonPayments($message);
+
         return $message;
     }
 
     /**
      * @return CustomerCreditTransferSPS2022
      */
-    protected function buildMessage()
+    protected function buildMessageSPS2022()
     {
         $message = new CustomerCreditTransferSPS2022('message-000', 'InnoMuster AG', 'softwareName', 'version', 'manufacturerName');
+        $this->buildCommonPayments($message);
 
+        return $message;
+    }
+
+    /**
+     * @param AbstractCustomerCreditTransfer $message
+     * @return AbstractCustomerCreditTransfer
+     */
+    protected function buildCommonPayments(AbstractCustomerCreditTransfer $message)
+    {
         // Test payment-000 : BankCreditTransfer
         $payment = new PaymentInformation(
             'payment-000',
@@ -332,7 +347,7 @@ class CustomerCreditTransferTest extends TestCase
 
     public function testGroupHeader()
     {
-        $message = $this->buildMessage();
+        $message = $this->buildMessageSPS2021();
         $xml = $message->asXml();
 
         $doc = new DOMDocument();
@@ -341,22 +356,22 @@ class CustomerCreditTransferTest extends TestCase
         $xpath->registerNamespace('pain001', $message->getSchemaName());
 
         $nbOfTxs = $xpath->evaluate('string(//pain001:GrpHdr/pain001:NbOfTxs)');
-        self::assertEquals('14', $nbOfTxs);
+        self::assertEquals('15', $nbOfTxs);
 
         $ctrlSum = $xpath->evaluate('string(//pain001:GrpHdr/pain001:CtrlSum)');
-        self::assertEquals('6810.001', $ctrlSum);
+        self::assertEquals('8110.001', $ctrlSum);
     }
 
     public function testSchemaValidation()
     {
-        $this->schemaValidation($this->buildMessage2021());
-        $this->schemaValidation($this->buildMessage());
+        $this->schemaValidation($this->buildMessageSPS2021());
+        $this->schemaValidation($this->buildMessageSPS2022());
     }
 
     public function testGetPaymentCount()
     {
-        $message = $this->buildMessage();
+        $message = $this->buildMessageSPS2022();
 
-        self::assertSame(6, $message->getPaymentCount());
+        self::assertSame(5, $message->getPaymentCount());
     }
 }

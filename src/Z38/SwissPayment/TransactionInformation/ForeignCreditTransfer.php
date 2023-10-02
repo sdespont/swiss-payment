@@ -79,7 +79,7 @@ class ForeignCreditTransfer extends CreditTransfer
         $root->appendChild($this->buildCreditor($doc));
 
         $creditorAccount = $doc->createElement('CdtrAcct');
-        $creditorAccount->appendChild($this->creditorAccount->asDom($doc, $spsVersion));
+        $creditorAccount->appendChild($this->creditorAccount->asDom($doc));
         $root->appendChild($creditorAccount);
 
         $this->appendPurpose($doc, $root);

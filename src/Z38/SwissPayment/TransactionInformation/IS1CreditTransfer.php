@@ -4,6 +4,8 @@ namespace Z38\SwissPayment\TransactionInformation;
 
 use DOMDocument;
 use InvalidArgumentException;
+use LogicException;
+use Z38\SwissPayment\Message\AbstractCustomerCreditTransfer;
 use Z38\SwissPayment\Money;
 use Z38\SwissPayment\PaymentInformation\PaymentInformation;
 use Z38\SwissPayment\PostalAccount;
@@ -45,12 +47,16 @@ class IS1CreditTransfer extends CreditTransfer
      */
     public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation, string $spsVersion)
     {
+        if ($spsVersion !== AbstractCustomerCreditTransfer::SPS_2021) {
+            throw new LogicException('ISR payments can only be created until SPS 2021 version');
+        }
+
         $root = $this->buildHeader($doc, $paymentInformation);
 
         $root->appendChild($this->buildCreditor($doc));
 
         $creditorAccount = $doc->createElement('CdtrAcct');
-        $creditorAccount->appendChild($this->creditorAccount->asDom($doc, $spsVersion));
+        $creditorAccount->appendChild($this->creditorAccount->asDom($doc));
         $root->appendChild($creditorAccount);
 
         $this->appendPurpose($doc, $root);

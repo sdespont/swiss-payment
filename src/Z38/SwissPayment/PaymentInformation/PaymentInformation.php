@@ -214,7 +214,7 @@ class PaymentInformation
      * Builds a DOM tree of this payment instruction
      *
      * @param DOMDocument $doc
-     *
+     * @param string $spsVersion
      * @return DOMElement The built DOM tree
      */
     public function asDom(DOMDocument $doc, string $spsVersion)
@@ -244,7 +244,7 @@ class PaymentInformation
             }
             if ($this->categoryPurpose !== null) {
                 $categoryPurposeNode = $doc->createElement('CtgyPurp');
-                $categoryPurposeNode->appendChild($this->categoryPurpose->asDom($doc, $spsVersion));
+                $categoryPurposeNode->appendChild($this->categoryPurpose->asDom($doc));
                 $paymentType->appendChild($categoryPurposeNode);
             }
             $root->appendChild($paymentType);

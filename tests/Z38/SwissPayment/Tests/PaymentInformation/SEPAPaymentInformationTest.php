@@ -58,7 +58,7 @@ class SEPAPaymentInformationTest extends TestCase
         ));
 
         $doc = new DOMDocument();
-        $dom = $payment->asDom($doc, AbstractCustomerCreditTransfer::SPS_2021);
+        $dom = $payment->asDom($doc, AbstractCustomerCreditTransfer::SPS_2022);
         $doc->appendChild($dom);
 
         $xpath = new DOMXPath($doc);
@@ -90,6 +90,6 @@ class SEPAPaymentInformationTest extends TestCase
         ));
 
         $doc = new DOMDocument();
-        $payment->asDom($doc, AbstractCustomerCreditTransfer::SPS_2021);
+        $payment->asDom($doc, AbstractCustomerCreditTransfer::SPS_2022);
     }
 }

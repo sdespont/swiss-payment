@@ -4,7 +4,6 @@ namespace Z38\SwissPayment\Message;
 
 use DOMDocument;
 use DOMElement;
-use Z38\SwissPayment\Text;
 
 /**
  * AbstractMessages eases message creation using DOM
@@ -25,14 +24,14 @@ abstract class AbstractMessage implements MessageInterface
      *
      * @return string
      */
-    abstract protected function getSchemaName();
+    abstract public function getSchemaName();
 
     /**
      * Gets the location of the schema
      *
      * @return string|null The location or null
      */
-    abstract protected function getSchemaLocation();
+    abstract public function getSchemaLocation();
 
     /**
      * Builds a DOM document of the message
