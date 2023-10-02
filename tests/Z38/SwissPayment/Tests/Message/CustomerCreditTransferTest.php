@@ -320,7 +320,58 @@ class CustomerCreditTransferTest extends TestCase
         return $message;
     }
 
-    public function schemaValidation(AbstractCustomerCreditTransfer $message)
+    public function testGroupHeader()
+    {
+        $message = $this->buildMessageSPS2021();
+        $xml = $message->asXml();
+
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
+        $xpath = new DOMXPath($doc);
+        $xpath->registerNamespace('pain001', $message->getSchemaName());
+
+        $nbOfTxs = $xpath->evaluate('string(//pain001:GrpHdr/pain001:NbOfTxs)');
+        self::assertEquals('15', $nbOfTxs);
+
+        $ctrlSum = $xpath->evaluate('string(//pain001:GrpHdr/pain001:CtrlSum)');
+        self::assertEquals('8110.001', $ctrlSum);
+
+        $message = $this->buildMessageSPS2022();
+        $xml = $message->asXml();
+
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
+        $xpath = new DOMXPath($doc);
+        $xpath->registerNamespace('pain001', $message->getSchemaName());
+
+        $nbOfTxs = $xpath->evaluate('string(//pain001:GrpHdr/pain001:NbOfTxs)');
+        self::assertEquals('10', $nbOfTxs);
+
+        $ctrlSum = $xpath->evaluate('string(//pain001:GrpHdr/pain001:CtrlSum)');
+        self::assertEquals('6710.001', $ctrlSum);
+    }
+
+    public function testGetPaymentCount()
+    {
+        self::assertSame(8, $this->buildMessageSPS2021()->getPaymentCount());
+        self::assertSame(5, $this->buildMessageSPS2022()->getPaymentCount());
+    }
+
+    /**
+     * @return AbstractCustomerCreditTransfer[][]
+     */
+    public function messageProvider()
+    {
+        return [
+            [$this->buildMessageSPS2021()],
+            [$this->buildMessageSPS2022()]
+        ];
+    }
+
+    /**
+     * @dataProvider messageProvider
+     */
+    public function testSchemaValidation($message)
     {
         $xml = $message->asXml();
         $schemaPath = __DIR__.'/../../../../'.$message->getSchemaLocation();
@@ -345,33 +396,84 @@ class CustomerCreditTransferTest extends TestCase
         libxml_use_internal_errors(false);
     }
 
-    public function testGroupHeader()
-    {
-        $message = $this->buildMessageSPS2021();
-        $xml = $message->asXml();
-
-        $doc = new DOMDocument();
-        $doc->loadXML($xml);
-        $xpath = new DOMXPath($doc);
-        $xpath->registerNamespace('pain001', $message->getSchemaName());
-
-        $nbOfTxs = $xpath->evaluate('string(//pain001:GrpHdr/pain001:NbOfTxs)');
-        self::assertEquals('15', $nbOfTxs);
-
-        $ctrlSum = $xpath->evaluate('string(//pain001:GrpHdr/pain001:CtrlSum)');
-        self::assertEquals('8110.001', $ctrlSum);
-    }
-
-    public function testSchemaValidation()
-    {
-        $this->schemaValidation($this->buildMessageSPS2021());
-        $this->schemaValidation($this->buildMessageSPS2022());
-    }
-
-    public function testGetPaymentCount()
+    public function testIS1PaymentException()
     {
         $message = $this->buildMessageSPS2022();
 
-        self::assertSame(5, $message->getPaymentCount());
+        $payment = new PaymentInformation(
+            'payment-100',
+            'InnoMuster AG',
+            new BIC('ZKBKCHZZ80A'),
+            new IBAN('CH6600700110000204481')
+        );
+        $message->addPayment($payment);
+
+        $transaction = new IS1CreditTransfer(
+            'instr-101',
+            'e2e-101',
+            new Money\CHF(30000), // CHF 300.00
+            'Finanzverwaltung Stadt Musterhausen',
+            new StructuredPostalAddress('Altstadt', '1a', '4998', 'Muserhausen'),
+            new PostalAccount('80-5928-4')
+        );
+        $payment->addTransaction($transaction);
+
+        $this->expectExceptionMessage("IS 2-stage payments can only be created until SPS 2021 version");
+        $message->asXml();
+    }
+
+    public function testIS2PaymentException()
+    {
+        $message = $this->buildMessageSPS2022();
+
+        $payment = new PaymentInformation(
+            'payment-100',
+            'InnoMuster AG',
+            new BIC('ZKBKCHZZ80A'),
+            new IBAN('CH6600700110000204481')
+        );
+        $message->addPayment($payment);
+
+        $transaction = new IS2CreditTransfer(
+            'instr-102',
+            'e2e-102',
+            new Money\CHF(20000), // CHF 200.00
+            'Druckerei Muster GmbH',
+            new StructuredPostalAddress('Gartenstrasse', '61', '3000', 'Bern'),
+            new IBAN('CH03 0900 0000 3054 1118 8'),
+            'Musterbank AG',
+            new PostalAccount('80-151-4')
+        );
+        $transaction->setRemittanceInformation("Test Remittance");
+        $payment->addTransaction($transaction);
+
+        $this->expectExceptionMessage("IS 2-stage payments can only be created until SPS 2021 version");
+        $message->asXml();
+    }
+
+    public function testISRPaymentException()
+    {
+        $message = $this->buildMessageSPS2022();
+
+        $payment = new PaymentInformation(
+            'payment-100',
+            'InnoMuster AG',
+            new BIC('ZKBKCHZZ80A'),
+            new IBAN('CH6600700110000204481')
+        );
+        $message->addPayment($payment);
+
+        $transaction = new ISRCreditTransfer(
+            'instr-110',
+            'e2e-110',
+            new Money\CHF(20000), // CHF 200.00
+            new ISRParticipant('01-1439-8'),
+            '210000000003139471430009017'
+        );
+        $payment->addTransaction($transaction);
+
+        $this->expectExceptionMessage("ISR payments can only be created until SPS 2021 version");
+        $message->asXml();
     }
 }
+

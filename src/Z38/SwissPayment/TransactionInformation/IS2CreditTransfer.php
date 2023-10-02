@@ -64,7 +64,7 @@ class IS2CreditTransfer extends CreditTransfer
     public function asDom(DOMDocument $doc, PaymentInformation $paymentInformation, string $spsVersion)
     {
         if ($spsVersion !== AbstractCustomerCreditTransfer::SPS_2021) {
-            throw new LogicException('ISR payments can only be created until SPS 2021 version');
+            throw new LogicException('IS 2-stage payments can only be created until SPS 2021 version');
         }
 
         $root = $this->buildHeader($doc, $paymentInformation);
