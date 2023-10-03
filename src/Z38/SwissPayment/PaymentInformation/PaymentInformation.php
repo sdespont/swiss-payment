@@ -11,7 +11,7 @@ use Z38\SwissPayment\BIC;
 use Z38\SwissPayment\FinancialInstitutionInterface;
 use Z38\SwissPayment\IBAN;
 use Z38\SwissPayment\IID;
-use Z38\SwissPayment\Message\AbstractCustomerCreditTransfer;
+use Z38\SwissPayment\Message\CustomerCreditTransfer;
 use Z38\SwissPayment\Money;
 use Z38\SwissPayment\Text;
 use Z38\SwissPayment\TransactionInformation\CreditTransfer;
@@ -251,7 +251,7 @@ class PaymentInformation
         }
 
         // Conditional formatting for SPS-2021
-        if ($spsVersion === AbstractCustomerCreditTransfer::SPS_2021) {
+        if ($spsVersion === CustomerCreditTransfer::SPS_2021) {
             $executionDate = $doc->createElement('ReqdExctnDt', $this->executionDate->format('Y-m-d'));
         } else {
             $executionDate = $doc->createElement('ReqdExctnDt');

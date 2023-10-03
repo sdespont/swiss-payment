@@ -11,9 +11,7 @@ use Z38\SwissPayment\GeneralAccount;
 use Z38\SwissPayment\IBAN;
 use Z38\SwissPayment\IID;
 use Z38\SwissPayment\ISRParticipant;
-use Z38\SwissPayment\Message\AbstractCustomerCreditTransfer;
-use Z38\SwissPayment\Message\CustomerCreditTransferSPS2021;
-use Z38\SwissPayment\Message\CustomerCreditTransferSPS2022;
+use Z38\SwissPayment\Message\CustomerCreditTransfer;
 use Z38\SwissPayment\Money;
 use Z38\SwissPayment\PaymentInformation\CategoryPurposeCode;
 use Z38\SwissPayment\PaymentInformation\PaymentInformation;
@@ -33,16 +31,16 @@ use Z38\SwissPayment\TransactionInformation\SEPACreditTransfer;
 use Z38\SwissPayment\UnstructuredPostalAddress;
 
 /**
- * @coversDefaultClass \Z38\SwissPayment\Message\AbstractCustomerCreditTransfer
+ * @coversDefaultClass \Z38\SwissPayment\Message\CustomerCreditTransfer
  */
 class CustomerCreditTransferTest extends TestCase
 {
     /**
-     * @return CustomerCreditTransferSPS2021
+     * @return CustomerCreditTransfer
      */
     protected function buildMessageSPS2021()
     {
-        $message = new CustomerCreditTransferSPS2021('message-000', 'InnoMuster AG', 'softwareName', 'version');
+        $message = new CustomerCreditTransfer('message-000', 'InnoMuster AG', CustomerCreditTransfer::SPS_2021, 'softwareName', 'version');
 
         // Test payment-100 : IS1CreditTransfer (local instrument CH01) and IS2CreditTransfer (local instrument CH02)
         $payment = new PaymentInformation(
@@ -134,21 +132,21 @@ class CustomerCreditTransferTest extends TestCase
     }
 
     /**
-     * @return CustomerCreditTransferSPS2022
+     * @return CustomerCreditTransfer
      */
     protected function buildMessageSPS2022()
     {
-        $message = new CustomerCreditTransferSPS2022('message-000', 'InnoMuster AG', 'softwareName', 'version', 'manufacturerName');
+        $message = new CustomerCreditTransfer('message-000', 'InnoMuster AG', CustomerCreditTransfer::SPS_2022, 'softwareName', 'version', 'manufacturerName');
         $this->buildCommonPayments($message);
 
         return $message;
     }
 
     /**
-     * @param AbstractCustomerCreditTransfer $message
-     * @return AbstractCustomerCreditTransfer
+     * @param CustomerCreditTransfer $message
+     * @return CustomerCreditTransfer
      */
-    protected function buildCommonPayments(AbstractCustomerCreditTransfer $message)
+    protected function buildCommonPayments(CustomerCreditTransfer $message)
     {
         // Test payment-000 : BankCreditTransfer with new char allowed by SPS-2022 "€ȘșȚț"
         $payment = new PaymentInformation(
@@ -189,7 +187,7 @@ class CustomerCreditTransferTest extends TestCase
             'instr-002',
             'e2e-002',
             new Money\CHF(30000), // CHF 300.00
-            '€ȘșȚț',
+            $message->getSpsVersion() === CustomerCreditTransfer::SPS_2021 ? 'InnoMuster AG' : 'New SPS-2022 chars €ȘșȚț',
             null,
             $iban,
             IID::fromIBAN($iban)
@@ -371,12 +369,12 @@ class CustomerCreditTransferTest extends TestCase
     }
 
     /**
-     * @return AbstractCustomerCreditTransfer[][]
+     * @return CustomerCreditTransfer[][]
      */
     public function messageProvider()
     {
         return [
-            //[$this->buildMessageSPS2021()],
+            [$this->buildMessageSPS2021()],
             [$this->buildMessageSPS2022()]
         ];
     }

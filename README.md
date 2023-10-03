@@ -74,7 +74,7 @@ $payment->addTransaction($transaction1);
 $payment->addTransaction($transaction2);
 $payment->addTransaction($transaction3);
 
-$message = new CustomerCreditTransferSPS2022('message-001', 'InnoMuster AG', 'softwareName', 'version', 'manufacturerName');
+$message = new CustomerCreditTransfer('message-001', 'InnoMuster AG', CustomerCreditTransfer::SPS_2022, 'softwareName', 'version', 'manufacturerName');
 $message->addPayment($payment);
 
 echo $message->asXml();

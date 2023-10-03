@@ -4,7 +4,7 @@ namespace Z38\SwissPayment;
 
 use DOMDocument;
 use InvalidArgumentException;
-use Z38\SwissPayment\Message\AbstractCustomerCreditTransfer;
+use Z38\SwissPayment\Message\CustomerCreditTransfer;
 
 /**
  * BIC
@@ -50,7 +50,7 @@ class BIC implements FinancialInstitutionInterface
     public function asDom(DOMDocument $doc, string $spsVersion)
     {
         $xml = $doc->createElement('FinInstnId');
-        if ($spsVersion === AbstractCustomerCreditTransfer::SPS_2021) {
+        if ($spsVersion === CustomerCreditTransfer::SPS_2021) {
             $xml->appendChild($doc->createElement('BIC', $this->format()));
         } else {
             $xml->appendChild($doc->createElement('BICFI', $this->format()));

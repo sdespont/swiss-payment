@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Z38\SwissPayment\BIC;
 use Z38\SwissPayment\FinancialInstitutionInterface;
 use Z38\SwissPayment\IBAN;
-use Z38\SwissPayment\Message\AbstractCustomerCreditTransfer;
+use Z38\SwissPayment\Message\CustomerCreditTransfer;
 use Z38\SwissPayment\Money;
 use Z38\SwissPayment\PaymentInformation\CategoryPurposeCode;
 use Z38\SwissPayment\PaymentInformation\PaymentInformation;
@@ -84,7 +84,7 @@ class PaymentInformationTest extends TestCase
             new PostalAccount('80-151-4')
         ));
 
-        $xml = $payment->asDom($doc, AbstractCustomerCreditTransfer::SPS_2021);
+        $xml = $payment->asDom($doc, CustomerCreditTransfer::SPS_2021);
 
         $xpath = new DOMXPath($doc);
         self::assertNull($payment->getServiceLevel());
@@ -131,7 +131,7 @@ class PaymentInformationTest extends TestCase
         $transaction->setRemittanceInformation("Test Remittance");
         $payment->addTransaction($transaction);
 
-        $xml = $payment->asDom($doc, AbstractCustomerCreditTransfer::SPS_2022);
+        $xml = $payment->asDom($doc, CustomerCreditTransfer::SPS_2022);
 
         $xpath = new DOMXPath($doc);
         self::assertNull($payment->getServiceLevel());
