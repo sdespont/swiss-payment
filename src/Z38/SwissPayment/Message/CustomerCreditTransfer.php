@@ -15,7 +15,7 @@ use Z38\SwissPayment\Text;
  */
 class CustomerCreditTransfer extends AbstractMessage
 {
-    // SPS-2021 version is supported until November 2024
+    // SPS-2021 version is supported until November 2025
     public const SPS_2021 = 'SPS-2021';
     public const SPS_2022 = 'SPS-2022';
 
