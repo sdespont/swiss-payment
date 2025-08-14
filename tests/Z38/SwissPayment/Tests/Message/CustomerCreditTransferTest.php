@@ -387,6 +387,8 @@ class CustomerCreditTransferTest extends TestCase
         $xml = $message->asXml();
         $schemaPath = __DIR__.'/../../../../'.$message->getSchemaLocation();
 
+        var_dump("LibXML version : ".LIBXML_DOTTED_VERSION);
+
         $doc = new DOMDocument();
         $doc->loadXML($xml);
 
