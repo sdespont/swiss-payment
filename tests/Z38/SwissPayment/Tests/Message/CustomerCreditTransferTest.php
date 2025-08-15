@@ -388,6 +388,7 @@ class CustomerCreditTransferTest extends TestCase
         $schemaPath = __DIR__.'/../../../../'.$message->getSchemaLocation();
 
         var_dump("LibXML version : ".LIBXML_DOTTED_VERSION);
+        var_dump("LibICU version : ".INTL_ICU_VERSION);
 
         $doc = new DOMDocument();
         $doc->loadXML($xml);

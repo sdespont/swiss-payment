@@ -1,50 +1,40 @@
 name: tests
 
 on:
-    push:
-    pull_request:
+  push:
+  pull_request:
 
 jobs:
-    linux_tests:
-        runs-on: ubuntu-22.04
+  linux_tests:
+    runs-on: ubuntu-22.04
 
-        strategy:
-            matrix:
-                php: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-                stability: ['prefer-stable']
-            fail-fast: false
+    strategy:
+      matrix:
+        php: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        stability: ['prefer-stable']
+      fail-fast: false
 
-        name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
+    name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-            - name: Upgrade ICU to latest (for libxml2 regex compatibility)
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y software-properties-common
-                  sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-                  sudo apt-get update
-                  sudo apt-get install -y libicu74 icu-devtools
-                  echo "ICU version:"
-                  icu-config --version || pkg-config --modversion icu-uc
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-                  tools: composer:v2
-                  coverage: none
+      - name: Check for syntax errors in PHP files
+        run: find ./ -type f -name '*.php' -print0 | xargs -0 -L1 -P4 -- php -l
 
-            - name: Check for syntax errors in PHP files
-              run: find ./ -type f -name '*.php' -print0 | xargs -0 -L1 -P4 -- php -l
+      - name: Check composer files
+        run: composer validate --strict
 
-            - name: Check composer files
-              run: composer validate --strict
+      - name: Install dependencies
+        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
 
-            - name: Install dependencies
-              run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
-
-            - name: Execute tests
-              run: vendor/bin/phpunit --verbose
+      - name: Execute tests
+        run: vendor/bin/phpunit --verbose
