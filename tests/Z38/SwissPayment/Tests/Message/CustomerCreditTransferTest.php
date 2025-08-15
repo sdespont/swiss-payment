@@ -187,7 +187,7 @@ class CustomerCreditTransferTest extends TestCase
             'instr-002',
             'e2e-002',
             new Money\CHF(30000), // CHF 300.00
-            $message->getSpsVersion() === CustomerCreditTransfer::SPS_2021 ? 'InnoMuster AG' : 'New SPS-2022',
+            $message->getSpsVersion() === CustomerCreditTransfer::SPS_2021 ? 'InnoMuster AG' : 'New SPS-2022 OK',
             null,
             $iban,
             IID::fromIBAN($iban)
