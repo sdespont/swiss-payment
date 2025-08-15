@@ -1553,8 +1553,6 @@ Based on ISO pain.001.001.09 (urn:iso:std:iso:20022:tech:xsd:pain.001.001.09)
 	<xs:simpleType name="SPSText">
 		<xs:restriction base="xs:string">
 			<xs:pattern value="[\p{IsBasicLatin}\p{IsLatin-1Supplement}\p{IsLatinExtended-A}€ȘșȚț-[\p{C}]]+"/>
-            <!-- Fix to permit PHP schema validation -->
-<!--			<xs:pattern value="[\p{IsBasicLatin}\p{IsLatin-1Supplement}\p{IsLatinExtended-A}-\p{C}€ȘșȚț]+"/>-->
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="StructuredRegulatoryReporting3">
