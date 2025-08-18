@@ -1,5 +1,9 @@
 # SwissPayment Changelog
 
+## 3.0.0 (2025-08-14)
+
+  * SPS 2022 compatibility
+
 ## 2.0.2 (2025-08-14)
 
   * Fix GitHub workflows script
