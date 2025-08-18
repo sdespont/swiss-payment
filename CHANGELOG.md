@@ -1,5 +1,9 @@
 # SwissPayment Changelog
 
+## 3.0.1 (2025-08-18)
+
+  * Improves fixed REGEX
+
 ## 3.0.0 (2025-08-14)
 
   * SPS 2022 compatibility
