@@ -65,7 +65,7 @@ class ISRCreditTransfer extends CreditTransfer
      * @param string                      $creditorName
      * @param PostalAddressInterface|null $creditorAddress
      */
-    public function setCreditorDetails($creditorName, PostalAddressInterface $creditorAddress = null)
+    public function setCreditorDetails($creditorName, ?PostalAddressInterface $creditorAddress = null)
     {
         $this->creditorName = Text::assert($creditorName, 70);
         $this->creditorAddress = $creditorAddress;
