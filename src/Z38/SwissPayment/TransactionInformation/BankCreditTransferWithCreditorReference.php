@@ -29,7 +29,7 @@ class BankCreditTransferWithCreditorReference extends BankCreditTransfer
      * @param $creditorAddress
      * @param IBAN $creditorIBAN  IBAN of the creditor
      * @param FinancialInstitutionInterface $creditorAgent BIC or IID of the creditor's financial institution
-     * @param string $creditorReference QR reference number (QRR)
+     * @param string $creditorReference Creditor Reference (SCOR / ISO 11649)
      */
     public function __construct(
         $instructionId,
@@ -42,8 +42,8 @@ class BankCreditTransferWithCreditorReference extends BankCreditTransfer
         $creditorReference
     ) {
         $cleanedCreditorReference = str_replace(' ', '', strtoupper($creditorReference));
-        if (!preg_match('/^RF/', $cleanedCreditorReference)) {
-            throw new InvalidArgumentException('The creditor reference (SCOR) must starts with RF : ISO-11649');
+        if (!self::isValidIso11649($cleanedCreditorReference)) {
+            throw new InvalidArgumentException('The creditor reference (SCOR) must be a valid ISO 11649 reference (RF followed by valid mod-97 check digits).');
         }
         $this->creditorReference = $cleanedCreditorReference;
 
@@ -52,6 +52,40 @@ class BankCreditTransferWithCreditorReference extends BankCreditTransfer
         }
 
         parent::__construct($instructionId, $endToEndId, $amount, $creditorName, $creditorAddress, $creditorIBAN, $creditorAgent);
+    }
+
+    /**
+     * Checks whether a reference is a valid ISO 11649 Creditor Reference (SCOR):
+     * "RF" followed by two check digits and up to 21 alphanumeric characters, with a
+     * valid mod-97 check digit (letters mapped A=10..Z=35, and "RF" plus the check
+     * digits moved to the end).
+     *
+     * @param string $reference The reference, already stripped of spaces and upper-cased
+     *
+     * @return bool
+     */
+    private static function isValidIso11649($reference)
+    {
+        if (!preg_match('/^RF[0-9]{2}[A-Z0-9]{1,21}$/', $reference)) {
+            return false;
+        }
+
+        $rearranged = substr($reference, 4).substr($reference, 0, 4);
+        $numeric = '';
+        $length = strlen($rearranged);
+        for ($i = 0; $i < $length; $i++) {
+            $char = $rearranged[$i];
+            $numeric .= ctype_digit($char) ? $char : (string) (ord($char) - 55);
+        }
+
+        // Compute mod 97 piecewise to avoid overflowing on the large number.
+        $remainder = 0;
+        $length = strlen($numeric);
+        for ($i = 0; $i < $length; $i++) {
+            $remainder = ($remainder * 10 + (int) $numeric[$i]) % 97;
+        }
+
+        return $remainder === 1;
     }
 
     /**
